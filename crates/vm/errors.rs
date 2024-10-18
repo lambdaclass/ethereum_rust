@@ -1,5 +1,7 @@
 use ethereum_rust_storage::error::StoreError;
-use revm::primitives::result::EVMError as RevmError;
+use revm::primitives::{
+    result::EVMError as RevmError, Address as RevmAddress, B256 as RevmB256, U256 as RevmU256,
+};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -14,6 +16,20 @@ pub enum EvmError {
     Custom(String),
     #[error("{0}")]
     Precompile(String),
+}
+
+#[derive(Debug, Error)]
+pub enum ExecutionDBError {
+    #[error("Account {0} not found")]
+    AccountNotFound(RevmAddress),
+    #[error("Code by hash {0} not found")]
+    CodeNotFound(RevmB256),
+    #[error("Storage value for address {0} and slot {1} not found")]
+    StorageNotFound(RevmAddress, RevmU256),
+    #[error("Hash of block with number {0} not found")]
+    BlockHashNotFound(u64),
+    #[error("{0}")]
+    Custom(String),
 }
 
 impl From<RevmError<StoreError>> for EvmError {

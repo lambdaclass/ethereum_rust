@@ -1,10 +1,12 @@
 mod db;
 mod errors;
+mod execution_db;
 mod execution_result;
 #[cfg(feature = "l2")]
 mod mods;
 
 use db::StoreWrapper;
+use execution_db::ExecutionDB;
 use std::cmp::min;
 
 use ethereum_rust_core::{
@@ -39,6 +41,11 @@ type AccessList = Vec<(Address, Vec<H256>)>;
 /// State used when running the EVM
 // Encapsulates state behaviour to be agnostic to the evm implementation for crate users
 pub struct EvmState(revm::db::State<StoreWrapper>);
+
+pub enum _EvmState {
+    Store(revm::db::State<StoreWrapper>),
+    Execution(revm::db::CacheDB<ExecutionDB>),
+}
 
 impl EvmState {
     /// Get a reference to inner `Store` database
