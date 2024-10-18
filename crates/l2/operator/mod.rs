@@ -41,7 +41,7 @@ pub async fn start_operator(store: Store) {
     }
 
     let l1_watcher = tokio::spawn(l1_watcher::start_l1_watcher(store.clone()));
-    let prover_server = tokio::spawn(prover_server::start_prover_server());
+    let prover_server = tokio::spawn(prover_server::start_prover_server(store.clone()));
     let operator = tokio::spawn(async move {
         let eth_config = EthConfig::from_env().expect("EthConfig::from_env");
         let operator_config = OperatorConfig::from_env().expect("OperatorConfig::from_env");
@@ -75,7 +75,7 @@ impl Operator {
         Ok(Self {
             eth_client: EthClient::new(&eth_config.rpc_url),
             engine_client: EngineClient::new_from_config(engine_config)?,
-            block_executor_address: operator_config.block_executor_address,
+            block_executor_address: operator_config.on_chain_operator_address,
             l1_address: operator_config.l1_address,
             l1_private_key: operator_config.l1_private_key,
             block_production_interval: Duration::from_millis(operator_config.interval_ms),
